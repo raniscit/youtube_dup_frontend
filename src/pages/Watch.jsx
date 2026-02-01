@@ -1,12 +1,14 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getVideoById, fetchPublicVideos } from "../api/video.api";
 import VideoCard from "../components/VideoCard";
 import Header from "../components/Header";
-import Comments from "../components/comments";
+import Comments from "../components/Comments";
+import AddToPlaylist from "../components/AddToPlaylist";
 
 const Watch = () => {
   const { videoId } = useParams();
+  const navigate = useNavigate()
 
   const [video, setVideo] = useState(null);
   const [videos, setVideos] = useState([]);
@@ -18,6 +20,8 @@ const Watch = () => {
       try {
         const res = await getVideoById(videoId);
         setVideo(res.data.data);
+        console.log("this is the get video by id object", res.data.data);
+
       } catch (err) {
         console.error(err);
         setError("Video not found");
@@ -46,27 +50,76 @@ const Watch = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
       <Header />
 
-      {/* Page Content */}
       <div className="px-6 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-          {/* LEFT — MAIN VIDEO */}
+          {/* LEFT — VIDEO + DETAILS */}
           <div className="lg:col-span-3">
-            <div className="w-full aspect-video max-h-[70vh] bg-black">
+
+            {/* VIDEO PLAYER */}
+            <div className="w-full aspect-video bg-black">
               <video
                 src={video.videoFile}
                 controls
                 autoPlay
-                className="w-full h-full rounded-md object-contain"
+                className="w-full h-full rounded-lg object-contain"
               />
             </div>
 
-            <h1 className="mt-4 text-xl font-semibold">
+            {/* TITLE */}
+            <h1 className="mt-4 text-xl md:text-2xl font-semibold leading-snug">
               {video.title}
             </h1>
+
+            {/* CHANNEL ROW */}
+            <div className="flex items-center justify-between mt-4">
+
+              {/* LEFT */}
+              <div className="flex items-center gap-3">
+                <img
+                  src={video.owner?.avatar || "/default-avatar.png"}
+                  alt={video.owner?.username}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+
+
+                <div>
+                  <p
+                    className="font-semibold cursor-pointer hover:underline"
+                    onClick={() =>
+                      navigate(`/channel/${video.owner?._id}/${video.owner?.username}`)
+                    }
+                  >
+                    {video.owner?.username || "Unknown Channel"}
+                  </p>
+
+                  <p className="text-sm text-gray-400">
+                    {/* placeholder */}
+                    12K subscribers
+                  </p>
+                </div>
+              </div>
+
+              {/* RIGHT */}
+              <button className="bg-white text-black px-4 py-2 rounded-full font-medium hover:bg-gray-200">
+                Subscribe
+              </button>
+              <div>
+                {/* Video player + info */}
+
+                <AddToPlaylist videoId={video._id} />
+              </div>
+
+            </div>
+
+            {/* DESCRIPTION */}
+            <div className="mt-4 bg-gray-900 rounded-lg p-4 text-gray-300">
+              <p className="whitespace-pre-line">
+                {video.description}
+              </p>
+            </div>
 
             {/* COMMENTS */}
             <div className="mt-6">
@@ -74,8 +127,8 @@ const Watch = () => {
                 Comments
               </h2>
 
-              <div className="bg-gray-900 rounded-lg p-4 text-gray-400">
-                <Comments/>
+              <div className="bg-gray-900 rounded-lg p-4">
+                <Comments />
               </div>
             </div>
           </div>
@@ -92,10 +145,12 @@ const Watch = () => {
                 />
               ))}
           </div>
+
         </div>
       </div>
     </div>
   );
+
 };
 
 export default Watch;

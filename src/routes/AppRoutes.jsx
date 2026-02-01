@@ -7,6 +7,7 @@ import Watch from "../pages/Watch";
 import SearchResults from "../pages/SearchResults";
 import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
+
 const AppRoutes = () => {
     return (
         <Routes>
@@ -16,8 +17,8 @@ const AppRoutes = () => {
             <Route path="/" element={<Onboarding />} />
             <Route path="/watch/:videoId" element={<Watch />} />
             <Route path="/search" element={<SearchResults />} />
-            <Route path="/profile/:userId" element={<Profile/>} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/channel/:userId/:username" element={<Profile/>}/>
 
         </Routes>
     );

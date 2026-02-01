@@ -40,7 +40,7 @@ const ProfileMenu = ({ user }) => {
 
           <div className="py-2 text-sm">
             <button
-              onClick={() => navigate(`/profile/${user._id}`)}
+              onClick={() => navigate(`/channel/${user._id}/${user.username}`)}
               className="w-full text-black text-left px-4 py-2 hover:bg-gray-100"
             >
               My Profile

@@ -8,7 +8,7 @@ const categories = ["Music", "Movies", "Study", "Sports", "Gaming", "News"];
 const Header = () => {
     const [query, setQuery] = useState("");
     const navigate = useNavigate();
-    const { isLoggedIn, user } = useAuth(); 
+    const { isLoggedIn, user, loading } = useAuth();
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -19,6 +19,8 @@ const Header = () => {
     const handleCategoryClick = (category) => {
         navigate(`/search?category=${encodeURIComponent(category)}`);
     };
+
+    if (loading) return null; 
 
     return (
         <header className="w-full bg-black border-b border-gray-800">

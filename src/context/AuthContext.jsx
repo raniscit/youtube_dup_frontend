@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { logoutUser } from "../api/auth.api";
+import api from "../api/axios";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -7,20 +8,27 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔁 Restore auth on refresh
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const storedUser = localStorage.getItem("user");
-
-    if (token && storedUser) {
+  // 🔐 VERIFY AUTH ON APP LOAD
+  const checkAuth = async () => {
+    try {
+      const res = await api.get("/users/curr-user"); // protected route
       setIsLoggedIn(true);
-      setUser(JSON.parse(storedUser));
+      setUser(res.data.data);
+    } catch (err) {
+      setIsLoggedIn(false);
+      setUser(null);
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setLoading(false);
+  useEffect(() => {
+    checkAuth();
   }, []);
 
-  // ✅ Login (NO API CALL HERE)
+  // ✅ Login (after successful API login)
   const login = (token, userData) => {
     localStorage.setItem("accessToken", token);
     localStorage.setItem("user", JSON.stringify(userData));
@@ -30,25 +38,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   // ✅ Logout
-  const logout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("user");
-
-    setIsLoggedIn(false);
-    setUser(null);
-    logoutUser();
-
+  const logout = async () => {
+    try {
+      await logoutUser(); // backend logout
+    } catch (err) {
+      console.error("Logout failed", err);
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      setIsLoggedIn(false);
+      setUser(null);
+    }
   };
 
   return (
     <AuthContext.Provider
-      value={{
-        isLoggedIn,
-        user,
-        login,
-        logout,
-        loading
-      }}
+      value={{ isLoggedIn, user, login, logout, loading }}
     >
       {!loading && children}
     </AuthContext.Provider>

@@ -5,11 +5,13 @@ import {
     addComment,
     toggleCommentLike
 } from "../api/comment.api";
+import { useAuth } from "../context/AuthContext";
 
 const Comments = () => {
     const { videoId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
+    const { isLoggedIn } = useAuth();
 
 
     const [comments, setComments] = useState([]);
@@ -36,37 +38,51 @@ const Comments = () => {
 
     // Add comment (redirect to register if not logged in)
     const handleSubmit = async () => {
+
+        if (!isLoggedIn) {
+            navigate("/register", {
+                state: { from: location.pathname }
+            });
+            return;
+        }
+
         if (!content.trim()) return;
 
         try {
-            const val = await addComment(videoId, content);
-            setContent("");
-            fetchComments();
-            console.log(val);
-            
+            await addComment(videoId, content);
+            setContent("");          // ✅ works perfectly
+            fetchComments();         // ✅ refreshes comments
         } catch (err) {
-            if (err?.response?.status === 401) {
+            if (err.response?.status === 401) {
                 navigate("/register", {
                     state: { from: location.pathname }
                 });
-
-                return;
+            } else {
+                console.error("Failed to add comment", err);
             }
-            console.error("Failed to add comment", err);
         }
     };
 
     // Like / Unlike comment (redirect if not logged in)
     const handleLike = async (commentId) => {
+        if (!isLoggedIn) {
+            navigate("/register", {
+                state: { from: location.pathname }
+            });
+            return;
+        }
+
         try {
             await toggleCommentLike(commentId);
             fetchComments();
         } catch (err) {
-            if (err?.response?.status === 401) {
-                navigate("/register");
-                return;
+            if (err.response?.status === 401) {
+                navigate("/register", {
+                    state: { from: location.pathname }
+                });
+            } else {
+                console.error("Failed to like comment", err);
             }
-            console.error("Failed to like comment", err);
         }
     };
 
@@ -108,11 +124,17 @@ const Comments = () => {
                         <p className="text-gray-300">{c.content}</p>
 
                         <button
-                            onClick={() => handleLike(c._id)}
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleLike(c._id);
+                            }}
                             className="text-sm text-gray-400 mt-1 hover:text-white"
                         >
                             👍 {c.likesCount}
                         </button>
+
+
                     </div>
                 ))}
         </div>
