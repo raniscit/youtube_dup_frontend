@@ -1,9 +1,4 @@
-import axios from "axios";
-
-const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  withCredentials: true,
-});
+import api from "./axios";
 
 // export const fetchPublicVideos = async () => {
 //   const res = await API.get("/videos"); // GET public videos  
@@ -12,17 +7,24 @@ const API = axios.create({
 
 
 export const fetchPublicVideos = async () => {
-  const res = await axios.get("http://localhost:8000/api/v1/videos/videos");
+  const res = await api.get("/videos/videos");
   return res.data.data;
 };
 
 export const getVideoById = (videoId) => {
-  return API.get(`http://localhost:8000/api/v1/videos/get-video/${videoId}`);
+  return api.get(`/videos/get-video/${videoId}`);
 };
 
 export const searchVideos = async (query) => {
-  const res = await axios.get(
-    `http://localhost:8000/api/v1/videos/search?q=${query}`
+  const res = await api.get(
+    `/videos/search?q=${query}`
+  );
+  return res.data.data;
+};
+
+export const  likeVideos = async (videoId) => {
+  const res = await api.post(
+    `/likes/togglelike-video/${videoId}`
   );
   return res.data.data;
 };

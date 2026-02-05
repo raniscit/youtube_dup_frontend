@@ -1,22 +1,27 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { logoutUser } from "../api/auth.api";
 import api from "../api/axios";
-const AuthContext = createContext();
+import { logoutUser } from "../api/auth.api";
+
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("accessToken"));
   const [loading, setLoading] = useState(true);
 
-  // 🔐 VERIFY AUTH ON APP LOAD
+  // 🔐 Verify user on app load
   const checkAuth = async () => {
     try {
-      const res = await api.get("/users/curr-user"); // protected route
-      setIsLoggedIn(true);
+      const res = await api.get("/users/curr-user");
       setUser(res.data.data);
-    } catch (err) {
-      setIsLoggedIn(false);
+      setIsLoggedIn(true);
+    } catch (error) {
       setUser(null);
+      setIsLoggedIn(false);
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
     } finally {
@@ -28,36 +33,48 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  // ✅ Login (after successful API login)
+  // ✅ Login
   const login = (token, userData) => {
     localStorage.setItem("accessToken", token);
     localStorage.setItem("user", JSON.stringify(userData));
 
-    setIsLoggedIn(true);
     setUser(userData);
+    setIsLoggedIn(true);
   };
 
   // ✅ Logout
   const logout = async () => {
     try {
-      await logoutUser(); // backend logout
-    } catch (err) {
-      console.error("Logout failed", err);
+      await logoutUser();
+    } catch (error) {
+      console.error("Logout failed:", error);
     } finally {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
-      setIsLoggedIn(false);
       setUser(null);
+      setIsLoggedIn(false);
     }
   };
 
+  const value = {
+    user,
+    isLoggedIn,
+    login,
+    logout,
+    loading,
+  };
+
   return (
-    <AuthContext.Provider
-      value={{ isLoggedIn, user, login, logout, loading }}
-    >
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
+  return context;
+};
