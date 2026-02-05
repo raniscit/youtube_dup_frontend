@@ -5,23 +5,28 @@ import VideoCard from "../components/VideoCard";
 import Header from "../components/Header";
 import Comments from "../components/Comments";
 import AddToPlaylist from "../components/AddToPlaylist";
+import LikeButton from "../components/LikeButton";
+import { useAuth } from "../context/AuthContext";
 
 const Watch = () => {
   const { videoId } = useParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  const { loading: authLoading, isLoggedIn } = useAuth();
 
   const [video, setVideo] = useState(null);
   const [videos, setVideos] = useState([]);
   const [error, setError] = useState("");
 
-  // Fetch current video
+  // Fetch current video — wait until auth finishes loading
   useEffect(() => {
+    if (authLoading) return; // wait for auth to load
+
     const fetchVideo = async () => {
       try {
         const res = await getVideoById(videoId);
         setVideo(res.data.data);
-        console.log("this is the get video by id object", res.data.data);
-
+        setError("");
       } catch (err) {
         console.error(err);
         setError("Video not found");
@@ -29,9 +34,9 @@ const Watch = () => {
     };
 
     fetchVideo();
-  }, [videoId]);
+  }, [videoId, authLoading]);
 
-  // Fetch recommended videos
+  // Fetch recommended videos once on mount
   useEffect(() => {
     const getVideos = async () => {
       try {
@@ -45,8 +50,9 @@ const Watch = () => {
     getVideos();
   }, []);
 
+  if (authLoading) return <p className="text-white">Loading authentication...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
-  if (!video) return <p className="text-white">Loading...</p>;
+  if (!video) return <p className="text-white">Loading video...</p>;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -84,7 +90,6 @@ const Watch = () => {
                   className="w-10 h-10 rounded-full object-cover"
                 />
 
-
                 <div>
                   <p
                     className="font-semibold cursor-pointer hover:underline"
@@ -106,12 +111,18 @@ const Watch = () => {
               <button className="bg-white text-black px-4 py-2 rounded-full font-medium hover:bg-gray-200">
                 Subscribe
               </button>
-              <div>
-                {/* Video player + info */}
 
-                <AddToPlaylist videoId={video._id} />
+              <div className="flex gap-4 mt-4">
+                <LikeButton
+                  videoId={video._id}
+                  initialLikes={video.likesCount}
+                  alreadyLiked={video.isLikedByUser}
+                />
               </div>
 
+              <div className="mt-4">
+                <AddToPlaylist videoId={video._id} />
+              </div>
             </div>
 
             {/* DESCRIPTION */}
@@ -150,7 +161,6 @@ const Watch = () => {
       </div>
     </div>
   );
-
 };
 
 export default Watch;

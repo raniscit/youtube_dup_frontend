@@ -93,7 +93,7 @@ const AddToPlaylist = ({ videoId }) => {
           <button
             onClick={handleAdd}
             disabled={loading || !selectedPlaylist}
-            className="px-3 py-2 bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 text-sm"
+            className="px-3 py-2 bg-blue-500 rounded hover:bg-blue-700  text-sm"
           >
             {loading ? "Adding..." : "Add to Playlist"}
           </button>
