@@ -8,16 +8,19 @@ import AddToPlaylist from "../components/AddToPlaylist";
 import LikeButton from "../components/LikeButton";
 import { useAuth } from "../context/AuthContext";
 import SubscribeButton from "../components/SubscribeButton";
+import { getSubscriberCount } from "../api/subscription.api";
 
 const Watch = () => {
   const { videoId } = useParams();
   const navigate = useNavigate();
 
-  const { loading: authLoading, isLoggedIn } = useAuth();
+  const { loading: authLoading, user } = useAuth();
 
   const [video, setVideo] = useState(null);
   const [videos, setVideos] = useState([]);
   const [error, setError] = useState("");
+  const [subscriberCount, setSubscriberCount] = useState(0);
+
 
   // Fetch current video — wait until auth finishes loading
   useEffect(() => {
@@ -50,6 +53,30 @@ const Watch = () => {
 
     getVideos();
   }, []);
+
+
+  useEffect(() => {
+    if (!video?.owner?._id) return;
+
+    const fetchCount = async () => {
+      try {
+        const count = await getSubscriberCount(video.owner._id);
+        setSubscriberCount(count);
+      } catch (err) {
+        console.error("Failed to fetch subscriber count", err);
+      }
+    };
+
+    fetchCount();
+  }, [video?.owner?._id]);
+
+  const formatSubscribers = (num) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+    return num;
+  };
+
+
 
   if (authLoading) return <p className="text-white">Loading authentication...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -102,26 +129,40 @@ const Watch = () => {
                   </p>
 
                   <p className="text-sm text-gray-400">
-                    {/* placeholder */}
-                    12K subscribers
+                    {formatSubscribers(subscriberCount)} subscribers
                   </p>
+
                 </div>
               </div>
 
               {/* RIGHT */}
-              <SubscribeButton channelId={video.owner?._id} />
+              <div className="flex items-center gap-5">
+                {video.owner?._id === user?._id ? (
+                  <span className="text-sm text-gray-400 font-medium">
+                    Your Channel
+                  </span>
+                ) : (<SubscribeButton
+                  channelId={video.owner?._id}
+                  onSubscriptionChange={(subscribed) => {
+                    setSubscriberCount(prev =>
+                      subscribed ? prev + 1 : prev - 1
+                    );
+                  }}
+                />)}
 
 
-              <div className="flex gap-4 mt-4">
-                <LikeButton
-                  videoId={video._id}
-                  initialLikes={video.likesCount}
-                  alreadyLiked={video.isLikedByUser}
-                />
-              </div>
 
-              <div className="mt-4">
-                <AddToPlaylist videoId={video._id} />
+                <div className="flex mt-5 ">
+                  <LikeButton
+                    videoId={video._id}
+                    initialLikes={video.likesCount}
+                    alreadyLiked={video.isLikedByUser}
+                  />
+                </div>
+
+                <div className="mt-4">
+                  <AddToPlaylist videoId={video._id} />
+                </div>
               </div>
             </div>
 

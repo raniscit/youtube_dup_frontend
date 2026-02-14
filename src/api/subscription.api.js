@@ -22,3 +22,11 @@ export const toggleSubscription = async (channelId, token) => {
   );
   return response.data.data; 
 };
+
+export const getSubscriberCount = async (channelId) => {
+  const response = await api.get(
+    `/subscriptions/subscriber-count/${channelId}`
+  );
+
+  return response.data.data.subscriberCount;
+};
