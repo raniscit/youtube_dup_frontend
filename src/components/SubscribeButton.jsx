@@ -9,7 +9,7 @@ const SubscribeButton = ({ channelId, onSubscriptionChange }) => {
 
     // Fetch subscription status on mount or when channelId/token changes
     useEffect(() => {
-        if (authLoading || !token) return;
+        if (authLoading) return;
 
         if (!isLoggedIn || !token || !channelId) {
             setIsSubscribed(false);
