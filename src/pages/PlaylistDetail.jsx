@@ -51,6 +51,23 @@ const PlaylistDetail = () => {
     setPlaylist(updated);
   };
 
+  const handleRemove = async (e, videoId) => {
+    e.stopPropagation(); 
+
+    try {
+      await removeVideoFromPlaylist(playlist._id, videoId);
+
+      // Update UI instantly
+      setPlaylist(prev => ({
+        ...prev,
+        videos: prev.videos.filter(v => v._id !== videoId)
+      }));
+
+    } catch (err) {
+      console.error("Failed to remove video", err);
+    }
+  };
+
   if (!playlist) return null;
 
   return (
@@ -124,8 +141,16 @@ const PlaylistDetail = () => {
             <div
               key={video._id}
               onClick={() => navigate(`/watch/${video._id}`)}
-              className="bg-[#181818] p-4 rounded-xl hover:bg-[#222] cursor-pointer transition"
+              className="bg-[#181818] p-4 rounded-xl hover:bg-[#222] cursor-pointer transition relative"
             >
+              {/* Remove Button */}
+              <button
+                onClick={(e) => handleRemove(e, video._id)}
+                className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-xs px-2 py-1 rounded text-white"
+              >
+                Remove
+              </button>
+
               {/* Thumbnail */}
               <div className="aspect-video rounded mb-3 overflow-hidden">
                 <img
