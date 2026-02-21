@@ -21,5 +21,10 @@ export const likeVideos = async (videoId) => {
 
 export const publishVideo = async (formData) => {
   const res = await api.post("/videos/publishvideos", formData);
-  return res.data;
+  return res.data.data;
+};
+
+export const incrementVideoView  = async (videoId) => {
+  const res = await api.patch(`/videos/v/${videoId}/view`);
+  return res.data.data;
 };

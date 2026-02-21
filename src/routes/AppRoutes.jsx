@@ -7,6 +7,7 @@ import Watch from "../pages/Watch";
 import SearchResults from "../pages/SearchResults";
 import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
+import PlaylistDetail from "../pages/PlaylistDetail";
 
 const AppRoutes = () => {
     return (
@@ -19,7 +20,7 @@ const AppRoutes = () => {
             <Route path="/search" element={<SearchResults />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/channel/:userId/:username" element={<Profile/>}/>
-
+            <Route path="/playlist/:playlistId" element={<PlaylistDetail />} />
         </Routes>
     );
 };

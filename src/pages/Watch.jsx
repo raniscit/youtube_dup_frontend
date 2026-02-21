@@ -9,6 +9,7 @@ import LikeButton from "../components/LikeButton";
 import { useAuth } from "../context/AuthContext";
 import SubscribeButton from "../components/SubscribeButton";
 import { getSubscriberCount } from "../api/subscription.api";
+import { incrementVideoView } from "../api/video.api";
 
 const Watch = () => {
   const { videoId } = useParams();
@@ -20,6 +21,7 @@ const Watch = () => {
   const [videos, setVideos] = useState([]);
   const [error, setError] = useState("");
   const [subscriberCount, setSubscriberCount] = useState(0);
+  const [hasCounted, setHasCounted] = useState(false);
 
 
   // Fetch current video — wait until auth finishes loading
@@ -76,6 +78,21 @@ const Watch = () => {
     return num;
   };
 
+  useEffect(() => {
+    setHasCounted(false);
+  }, [videoId]);
+
+  const incrementView = async () => {
+    if (hasCounted) return;
+
+    try {
+      await incrementVideoView(video._id);
+      setHasCounted(true);
+    } catch (err) {
+      console.error("Failed to increment view");
+    }
+  };
+
 
 
   if (authLoading) return <p className="text-white">Loading authentication...</p>;
@@ -98,6 +115,9 @@ const Watch = () => {
                 src={video.videoFile}
                 controls
                 autoPlay
+                onPlay={() => {
+                  incrementView();
+                }}
                 className="w-full h-full rounded-lg object-contain"
               />
             </div>
