@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { CheckCircle2, Plus } from "lucide-react";
-
+import LikedVideos from "../components/LikeVideo";
 import { getUserProfile, getUserVideos } from "../api/profile.api";
 import {
   getMyPlaylists,
-  createPlaylist,
-  addVideoToPlaylist,
 } from "../api/playlist.api";
 
 import ProfileSkeleton from "../components/ProfileSkeleton";
@@ -47,11 +45,7 @@ const Profile = () => {
     setPlaylists((prev) => [newPlaylist, ...prev]);
     setShowModal(false);
   };
-
-  const handleAddToPlaylist = async (playlistId, videoId) => {
-    await addVideoToPlaylist(playlistId, videoId);
-    alert("Added to playlist");
-  };
+  
 
   if (loading) return <ProfileSkeleton />;
 
@@ -61,7 +55,7 @@ const Profile = () => {
       {/* Banner */}
       <div className="h-56 overflow-hidden">
         <img
-          src={profile?.coverImage}
+          src={profile?.coverImage?.coverImage}
           alt="Banner"
           className="w-full h-full object-cover"
         />
@@ -100,7 +94,7 @@ const Profile = () => {
 
       {/* Tabs */}
       <div className="max-w-6xl mx-auto px-6 mt-8 border-b border-[#3f3f3f] flex gap-8 items-center">
-        {["Videos", "Playlists", "About"].map((tab) => (
+        {["Videos", "Playlists","LikedVideos","About"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -124,7 +118,6 @@ const Profile = () => {
         )}
       </div>
 
-      {/* VIDEOS */}
       {/* VIDEOS */}
       {activeTab === "Videos" && (
         <div className="max-w-6xl mx-auto px-6 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -151,7 +144,7 @@ const Profile = () => {
               <h3 className="font-semibold text-sm line-clamp-2">
                 {video.title}
               </h3>
-              
+
             </div>
           ))}
         </div>
@@ -197,10 +190,65 @@ const Profile = () => {
 
       {/* ABOUT */}
       {activeTab === "About" && (
-        <div className="max-w-6xl mx-auto px-6 py-6 text-gray-300">
-          <p>{profile?.about}</p>
+        <div className="max-w-6xl mx-auto px-6 py-10 text-gray-300">
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+            {/* LEFT — Description */}
+            <div className="lg:col-span-2 bg-[#181818] rounded-xl p-6 shadow-md">
+              <h2 className="text-lg font-semibold mb-4 text-white">
+                Description
+              </h2>
+
+              <p className="whitespace-pre-line leading-relaxed text-gray-400">
+                {profile?.description || "No description provided."}
+              </p>
+            </div>
+
+            {/* RIGHT — Channel Info */}
+            <div className="bg-[#181818] rounded-xl p-6 shadow-md space-y-4">
+
+              <h2 className="text-lg font-semibold text-white">
+                Channel Details
+              </h2>
+
+              <div className="text-sm space-y-2">
+
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Joined</span>
+                  <span>
+                    {new Date(profile?.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Total Videos</span>
+                  <span>{profile?.videosCount || 0}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Total Views</span>
+                  <span>{profile?.totalViews || 0}</span>
+                </div>
+
+                {profile?.email && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Business Email</span>
+                    <span className="truncate max-w-[150px]">
+                      {profile.email}
+                    </span>
+                  </div>
+                )}
+
+              </div>
+            </div>
+
+          </div>
         </div>
       )}
+
+      {/* Liked videos */}
+      {activeTab === "LikedVideos" && <LikedVideos/>}
 
       {showModal && (
         <PlaylistModal

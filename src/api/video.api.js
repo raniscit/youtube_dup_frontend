@@ -28,3 +28,10 @@ export const incrementVideoView  = async (videoId) => {
   const res = await api.patch(`/videos/v/${videoId}/view`);
   return res.data.data;
 };
+
+export const getLikedVideo  = async () => {
+  const res = await api.get(`/likes/likedvideos`);
+  return res.data.data;
+};
+
+

@@ -56,14 +56,18 @@ const SearchResults = () => {
         {loading ? (
           <p>Searching...</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {videos.length === 0 ? (
-              <p>No videos found</p>
-            ) : (
-              videos.map((video) => (
-                <VideoCard key={video._id} video={video} />
-              ))
-            )}
+          <div className="max-w-7xl mx-5 px-4 sm:px-6 lg:px-8 py-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {videos.length === 0 ? (
+                <p className="col-span-full text-center text-gray-400">
+                  No videos found
+                </p>
+              ) : (
+                videos.map((video) => (
+                  <VideoCard key={video._id} video={video} />
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>

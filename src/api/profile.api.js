@@ -13,6 +13,5 @@ export const getUserVideos = async (userId) => {
     `http://localhost:8000/api/v1/videos/users/${userId}`,
     { withCredentials: true }
   );
-  console.log(res);
   return res.data.data.videos;
 };

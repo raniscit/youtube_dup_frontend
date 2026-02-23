@@ -127,6 +127,7 @@ const Comments = () => {
                             type="button"
                             onClick={(e) => {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 handleLike(c._id);
                             }}
                             className="text-sm text-gray-400 mt-1 hover:text-white"
