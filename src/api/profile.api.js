@@ -1,17 +1,25 @@
-import axios from "axios";
+import api from "./axios";
 
 export const getUserProfile = async (username) => {
-  const res = await axios.get(
-    `http://localhost:8000/api/v1/users/c/${username}`,
-    { withCredentials: true }
+  const res = await api.get(
+    `/users/c/${username}`
   );
+
   return res.data.data;
 };
 
 export const getUserVideos = async (userId) => {
-  const res = await axios.get(
-    `http://localhost:8000/api/v1/videos/users/${userId}`,
-    { withCredentials: true }
+  const res = await api.get(
+    `/videos/users/${userId}`
   );
   return res.data.data.videos;
 };
+
+export const getWatchHistory = async () => {
+
+  const res = await api.get(
+    `/users/history`
+  );
+  return res.data.data;
+};
+

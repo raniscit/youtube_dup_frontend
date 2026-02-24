@@ -30,14 +30,13 @@ const Login = () => {
     try {
       const res = await loginUser(form);
 
-      const token = res.data?.accessToken;
       const user = res.data?.user;
 
-      if (!token || !user) {
+      if (!user) {
         throw new Error("Invalid login response");
       }
 
-      login(token, user);
+      login(user); // no token
 
       navigate(redirectTo, { replace: true });
 

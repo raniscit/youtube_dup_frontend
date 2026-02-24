@@ -1,37 +1,14 @@
-// import axios from "axios";
-
-// export const getVideoComments = async(videoId)=>{
-//     const res = await axios.get(`http://localhost:8000/api/v1/comments/getcomments/${videoId}`);
-//     return res.data.data;
-// }
-
-// export const addComment = async(videoId)=>{
-//     const res = await axios.post(`http://localhost:8000/api/v1/comments/add-comment/${videoId}`);
-//     return res.data.data;
-// }
-
-// export const toggleCommentLike = async(commentId) => {
-//     const res = await axios.post(`http://localhost:8000/api/v1/likes/togglelike-comment/${commentId}`);
-//     return res.data.data;
-// }
-
-
-import axios from "axios";
-
-const API = axios.create({
-  baseURL: "http://localhost:8000/api/v1",
-  withCredentials: true
-});
+import api from "./axios";
 
 // Get comments of a video
 export const getVideoComments = async (videoId) => {
-  const res = await API.get(`/comments/getcomments/${videoId}`);
+  const res = await api.get(`/comments/getcomments/${videoId}`);
   return res.data.data;
 };
 
 // ✅ Add comment (THIS FIXES YOUR ISSUE)
 export const addComment = async (videoId, content) => {
-  const res = await API.post(
+  const res = await api.post(
     `/comments/add-comment/${videoId}`,
     { content }
   );
@@ -40,7 +17,7 @@ export const addComment = async (videoId, content) => {
 
 // Like / Unlike comment
 export const toggleCommentLike = async (commentId) => {
-  const res = await API.post(
+  const res = await api.post(
     `/likes/togglelike-comment/${commentId}`
   );
   return res.data.data;

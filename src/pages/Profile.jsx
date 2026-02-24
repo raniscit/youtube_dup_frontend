@@ -9,6 +9,9 @@ import {
 
 import ProfileSkeleton from "../components/ProfileSkeleton";
 import PlaylistModal from "../components/PlaylistModal";
+import { getWatchHistory } from "../api/profile.api";
+import VideoCard from "../components/VideoCard";
+
 
 const Profile = () => {
   const { username, userId } = useParams();
@@ -20,6 +23,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("Videos");
   const [showModal, setShowModal] = useState(false);
+  const [history, setHistory] = useState([]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,10 +32,12 @@ const Profile = () => {
         const profileData = await getUserProfile(username);
         const videosData = await getUserVideos(userId);
         const playlistsData = await getMyPlaylists(userId);
+        const historyData = await getWatchHistory(userId);
 
         setProfile(profileData);
         setVideos(videosData);
         setPlaylists(playlistsData);
+        setHistory(historyData);
       } catch (err) {
         console.error(err);
       } finally {
@@ -45,7 +52,7 @@ const Profile = () => {
     setPlaylists((prev) => [newPlaylist, ...prev]);
     setShowModal(false);
   };
-  
+
 
   if (loading) return <ProfileSkeleton />;
 
@@ -94,7 +101,7 @@ const Profile = () => {
 
       {/* Tabs */}
       <div className="max-w-6xl mx-auto px-6 mt-8 border-b border-[#3f3f3f] flex gap-8 items-center">
-        {["Videos", "Playlists","LikedVideos","About"].map((tab) => (
+        {["Videos", "Playlists", "LikedVideos", "History", "About"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -247,8 +254,21 @@ const Profile = () => {
         </div>
       )}
 
+      {/* HISTORY */}
+      {activeTab === "History" && (
+        <div className="max-w-6xl mx-auto px-6 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {history.length === 0 ? (
+            <p className="text-gray-400">No watch history</p>
+          ) : (
+            history.map((video) => (
+              <VideoCard key={video._id} video={video} />
+            ))
+          )}
+        </div>
+      )}
+
       {/* Liked videos */}
-      {activeTab === "LikedVideos" && <LikedVideos/>}
+      {activeTab === "LikedVideos" && <LikedVideos />}
 
       {showModal && (
         <PlaylistModal
