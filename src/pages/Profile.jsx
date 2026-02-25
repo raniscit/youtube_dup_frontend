@@ -6,12 +6,12 @@ import { getUserProfile, getUserVideos } from "../api/profile.api";
 import {
   getMyPlaylists,
 } from "../api/playlist.api";
-
+import { Trash2 } from "lucide-react";
 import ProfileSkeleton from "../components/ProfileSkeleton";
 import PlaylistModal from "../components/PlaylistModal";
 import { getWatchHistory } from "../api/profile.api";
 import VideoCard from "../components/VideoCard";
-
+import { deleteVideo } from "../api/video.api";
 
 const Profile = () => {
   const { username, userId } = useParams();
@@ -132,8 +132,31 @@ const Profile = () => {
             <div
               key={video._id}
               onClick={() => navigate(`/watch/${video._id}`)}
-              className="cursor-pointer group"
+              className="cursor-pointer group relative"
             >
+              {/* Delete Button */}
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+
+                  const confirmDelete = window.confirm(
+                    "Are you sure you want to delete this video?"
+                  );
+                  if (!confirmDelete) return;
+
+                  try {
+                    await deleteVideo(video._id);
+                    setVideos((prev) =>
+                      prev.filter((v) => v._id !== video._id)
+                    );
+                  } catch (error) {
+                    console.error(error);
+                  }
+                }}
+                className="absolute top-2 right-2 z-20 bg-red-600 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition duration-200"
+              >
+                Delete
+              </button>
               {/* Thumbnail */}
               <div className="aspect-video rounded-xl mb-2 overflow-hidden relative">
                 <img
@@ -151,7 +174,6 @@ const Profile = () => {
               <h3 className="font-semibold text-sm line-clamp-2">
                 {video.title}
               </h3>
-
             </div>
           ))}
         </div>

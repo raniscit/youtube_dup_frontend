@@ -34,4 +34,9 @@ export const getLikedVideo  = async () => {
   return res.data.data;
 };
 
+export const deleteVideo  = async (videoId) => {
+  const res = await api.post(`/videos/delete-video/${videoId}`);
+  return res.data.data;
+};
+
 
